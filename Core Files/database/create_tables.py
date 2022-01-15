@@ -13,20 +13,20 @@ def create_tables():
         """,
         """
         CREATE TABLE users (
-            user_id INTEGER PRIMARY KEY,
+            user_id SERIAL PRIMARY KEY,
             user_discord_id VARCHAR(80) NOT NULL,
             user_name VARCHAR(80)
         )
         """,
         """
         CREATE TABLE games (
-            game_id INTEGER PRIMARY KEY,
+            game_id SERIAL PRIMARY KEY,
             game_name VARCHAR(80) NOT NULL
         )
         """,
         """
         CREATE TABLE events (
-            event_id INTEGER PRIMARY KEY,
+            event_id SERIAL PRIMARY KEY,
             game_id INTEGER NOT NULL,
             FOREIGN KEY (game_id)
                 REFERENCES games (game_id)

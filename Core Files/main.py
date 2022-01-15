@@ -2,6 +2,7 @@ import discord
 import psycopg2
 from tokenize import group
 from pprint import pprint
+from database.db_service import add_game
 
 client = discord.Client()
 conn = psycopg2.connect(
@@ -59,20 +60,25 @@ async def on_message(message):
         requested_users = list_mentions(message)
         
         ### get the word immediately after $create
-        group_name = message.content.split()[1]
+        create_type = message.content.split()[1].lower()
 
-        groups = db.groups
-        group_details = {
-            "name": group_name,
-            "users": requested_users,
-        }
+        if create_type == "game":
+            game_name = " ".join(message.content.split()[2:])
+            add_game(game_name)
+            await message.channel.send("Added game {} to database".format(game_name))
+            
+        # groups = db.groups
+        # group_details = {
+        #     "name": group_name,
+        #     "users": requested_users,
+        # }
 
-        result = groups.insert_one(group_details)
+        # result = groups.insert_one(group_details)
 
-        QueryResult = groups.find_one({"name": group_name})
-        pprint(QueryResult)
+        # QueryResult = groups.find_one({"name": group_name})
+        # pprint(QueryResult)
 
-        await message.channel.send("Created a group with the name: {0}, that includes users: {1}".format(group_name, requested_users))
+        # await message.channel.send("Created a group with the name: {0}, that includes users: {1}".format(group_name, requested_users))
 
 
 client.run('OTMxNjc4NTIyNTQyNTMwNjEx.YeH7PQ.JLrb_FxCnb9iMQp8s49_mZOsmPM')
