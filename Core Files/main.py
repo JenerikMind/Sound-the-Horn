@@ -1,8 +1,16 @@
 import discord
-from pymongo import MongoClient
+import psycopg2
+from tokenize import group
+from pprint import pprint
 
 client = discord.Client()
-db_client = MongoClient()
+conn = psycopg2.connect(
+    host="localhost",
+    database="sth_test",
+    user="postgres",
+    password="pgadmin"
+)
+
 
 ######################
 ## helper functions ##
@@ -36,7 +44,7 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    ## author id as var for quick access
+    ### author id as var for quick access
     author_id = message.author.id
 
     ### Greetings
@@ -49,7 +57,22 @@ async def on_message(message):
 
     if message.content.startswith('$create'):
         requested_users = list_mentions(message)
-        await message.channel.send("Created a group with the name: {0}, that includes users: {1}".format("rocket league", requested_users))
+        
+        ### get the word immediately after $create
+        group_name = message.content.split()[1]
+
+        groups = db.groups
+        group_details = {
+            "name": group_name,
+            "users": requested_users,
+        }
+
+        result = groups.insert_one(group_details)
+
+        QueryResult = groups.find_one({"name": group_name})
+        pprint(QueryResult)
+
+        await message.channel.send("Created a group with the name: {0}, that includes users: {1}".format(group_name, requested_users))
 
 
 client.run('OTMxNjc4NTIyNTQyNTMwNjEx.YeH7PQ.JLrb_FxCnb9iMQp8s49_mZOsmPM')
