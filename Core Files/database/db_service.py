@@ -1,4 +1,5 @@
 from re import search
+from tokenize import group
 import psycopg2
 from .connect import connect
 
@@ -108,20 +109,23 @@ def add_group(group_name):
 ####### BASIC SEARCHES ########
 ###############################
 
-def search_user(user_discord_id):
+def search_user(user_discord_id=None, user_id=None):
     user = None
     try:
         conn = connect()
         cursor = conn.cursor()
 
         QUERY = """
-        SELECT * FROM users WHERE 
-        user_discord_id = '{}'
-        """.format(user_discord_id)
+        SELECT user_discord_id, user_name FROM users WHERE 
+        user_discord_id = '{0}' OR
+        user_id = '{0}'
+        """.format(user_discord_id if user_discord_id is not None else user_id)
+
+        print(QUERY)
 
         cursor.execute(QUERY)
 
-        user = cursor.fetchone()[0]
+        user = cursor.fetchone()
         print("User: {}".format(user))
 
     except (Exception, psycopg2.DatabaseError) as error:
@@ -142,8 +146,8 @@ def search_group(group_name):
         cursor = conn.cursor()
 
         QUERY = """
-        SELECT * FROM groups WHERE 
-        group_name = '{}' RETURNING group_id
+        SELECT group_id FROM groups WHERE 
+        group_name = '{}'
         """.format(group_name)
 
         cursor.execute(QUERY)
@@ -189,6 +193,7 @@ def add_user_to_group(mention, group_id):
         """.format(group_id, user_id)
 
         cursor.execute(ADD_GROUP)
+        group_id = cursor.fetchall()
         conn.commit()
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
@@ -196,6 +201,58 @@ def add_user_to_group(mention, group_id):
         if conn is not None:
             cursor.close()
             conn.close()  
-            return 1
+            return group_id
         else:
-            return 0
+            return None
+
+
+def find_group_users(group_name):
+    group_id = search_group(group_name)
+    user_ids = [] ### for the user_ids to be appended to
+
+    if group_id is None:
+        return None
+
+    try:
+        conn = connect()
+        cursor = conn.cursor()
+
+        QUERY = """
+            SELECT user_id FROM group_users
+            WHERE group_id={}
+        """.format(group_id)
+
+        cursor.execute(QUERY)
+        user_ids = cursor.fetchall()
+        
+        print("user_ids: {}".format(user_ids))
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            cursor.close()
+            conn.close()  
+            return user_ids
+        else:
+            return None
+
+
+def build_ping_list(group_name):
+    user_ids = find_group_users(group_name)
+    print("user_ids: {}".format(user_ids))
+    
+    if user_ids is not None:    
+        discord_ids = []
+        for id in user_ids:
+            print("id: {}".format(id[0]))
+
+            user = search_user(user_id=str(id[0]))
+
+            print("user: {}".format(user[0]))
+
+            discord_ids.append(user[0])
+        
+        return discord_ids
+    else:
+        return None

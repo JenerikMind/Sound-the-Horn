@@ -2,7 +2,7 @@ import discord
 import psycopg2
 from tokenize import group
 from pprint import pprint
-from database.db_service import add_game, add_user, add_group, add_user_to_group, search_group
+from database.db_service import add_game, add_user, add_group, add_user_to_group, search_group, build_ping_list
 
 client = discord.Client()
 conn = psycopg2.connect(
@@ -31,8 +31,7 @@ def list_mentions(message):
         requested_users.append(ping_user(mention.id))
 
     return requested_users
-
-
+   
 
 
 
@@ -48,7 +47,6 @@ async def on_message(message):
     ### author id as var for quick access
     author_id = message.author.id
 
-    print(message.mentions)
 
     ### Greetings
     if message.content.startswith('$hello'):
@@ -58,6 +56,8 @@ async def on_message(message):
         requested_users = list_mentions(message)        
         await message.channel.send("Schedule created with requested members. Current party members: {}".format(requested_users))
 
+
+#### CREATE ####
     if message.content.startswith('$create'):
         requested_users = list_mentions(message)
         
@@ -87,6 +87,20 @@ async def on_message(message):
                     add_user_to_group(mention, group_id) ### semi-baked in user check in add_user_to_group
 
             await message.channel.send("Added group {} to database".format(group_name))
+
+    
+#### SOUND THE HORN! ####
+    if message.content.startswith('$Assemble') or message.content.startswith('$ring_the_alarm'):
+        message_arr = message.content.split()
+        group_name = message_arr[1]
+        broadcast = " ".join(message_arr[2:])
+
+        users = build_ping_list(group_name)
+        avengers = [ping_user(user) for user in users]
+
+        await message.channel.send("{0} {1}".format(broadcast, avengers))
+
+
 
 client.run('OTMxNjc4NTIyNTQyNTMwNjEx.YeH7PQ.JLrb_FxCnb9iMQp8s49_mZOsmPM')
 
