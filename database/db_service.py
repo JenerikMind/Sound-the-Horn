@@ -1,5 +1,3 @@
-from re import search
-from tokenize import group
 import psycopg2
 from .connect import connect
 

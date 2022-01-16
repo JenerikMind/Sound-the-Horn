@@ -57,13 +57,11 @@ async def on_message(message):
         await message.channel.send("Hello {}".format(ping_user(author_id)))
 
     if message.content.startswith('$schedule'):
-        requested_users = list_mentions(message)        
-        await message.channel.send("Schedule created with requested members. Current party members: {}".format(requested_users))
+        await message.channel.send("Schedule created with requested members. Current party members: {}".format(mentions))
 
 
 #### CREATE ####
     if message.content.startswith('$create'):
-        requested_users = list_mentions(message)
         
         ### get the word immediately after $create
         create_type = message_arr[1].lower()
@@ -76,7 +74,7 @@ async def on_message(message):
         if create_type == "user":
             for mention in message.mentions:
                 add_user(mention.name, mention.id)
-            await message.channel.send("Added user(s) {} to database".format(requested_users))
+            await message.channel.send("Added user(s) {} to database".format(mentions))
 
         if create_type == "group":
             group_name = message_arr[2]

@@ -1,3 +1,5 @@
 database/database.ini
 .env
 disc_token.py
+Lib/
+__pycache__/
