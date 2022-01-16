@@ -116,7 +116,7 @@ def search_user(user_discord_id=0, user_id=0):
         cursor = conn.cursor()
 
         QUERY = """
-        SELECT user_discord_id, user_name FROM users WHERE 
+        SELECT user_discord_id, user_id FROM users WHERE 
         user_discord_id = '{0}' OR
         user_id = '{1}'
         """.format(user_discord_id, user_id)
@@ -257,3 +257,37 @@ def build_ping_list(group_name):
         return discord_ids
     else:
         return None
+
+
+
+#######################
+#### DELETION BITS ####
+#######################
+
+def remove_from_group(discord_ids, group_name):
+    ### first get the user_id from the discord_id
+    user_ids = [search_user(discord_id) for discord_id in discord_ids]
+    group_id = search_group(group_name)
+
+    try:
+        conn = connect()
+        cursor = conn.cursor()
+
+        for user in user_ids:
+            QUERY = """
+                DELETE FROM group_users
+                WHERE user_id={} AND group_id={}
+            """.format(user[1], group_id)
+
+            cursor.execute(QUERY)
+            conn.commit()
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            cursor.close()
+            conn.close()  
+            return 1
+        else:
+            return 0
