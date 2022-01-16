@@ -109,7 +109,7 @@ def add_group(group_name):
 ####### BASIC SEARCHES ########
 ###############################
 
-def search_user(user_discord_id=None, user_id=None):
+def search_user(user_discord_id=0, user_id=0):
     user = None
     try:
         conn = connect()
@@ -118,8 +118,8 @@ def search_user(user_discord_id=None, user_id=None):
         QUERY = """
         SELECT user_discord_id, user_name FROM users WHERE 
         user_discord_id = '{0}' OR
-        user_id = '{0}'
-        """.format(user_discord_id if user_discord_id is not None else user_id)
+        user_id = '{1}'
+        """.format(user_discord_id, user_id)
 
         print(QUERY)
 
@@ -177,9 +177,10 @@ def add_user_to_group(mention, group_id):
     the user to the group.  Takes in a discord 'mention' obj
     and the 'group_id' that you will be adding the user to.
     """
-    user_id = search_user(mention.id)
+    user = search_user(mention.id)
+    print("user_id from add_user_to_group: {}".format(user))
     
-    if user_id is None:
+    if user is None:
         user_id = add_user(mention.name, mention.id)
     
     ### the good stuff
@@ -190,7 +191,7 @@ def add_user_to_group(mention, group_id):
         ADD_GROUP = """
             INSERT INTO group_users(group_id, user_id)
             VALUES ('{0}', '{1}') RETURNING group_id
-        """.format(group_id, user_id)
+        """.format(group_id, user if user is not None else user_id)
 
         cursor.execute(ADD_GROUP)
         group_id = cursor.fetchall()
