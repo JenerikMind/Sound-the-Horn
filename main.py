@@ -1,7 +1,6 @@
 import discord
 import psycopg2
-from tokenize import group
-from pprint import pprint
+from disc_token import return_token
 from database.db_service import add_game, add_user, add_group, add_user_to_group, search_group, build_ping_list, remove_from_group
 
 client = discord.Client()
@@ -118,5 +117,5 @@ async def on_message(message):
 
 
 
-client.run('OTMxNjc4NTIyNTQyNTMwNjEx.YeH7PQ.JLrb_FxCnb9iMQp8s49_mZOsmPM')
+client.run(return_token())
 

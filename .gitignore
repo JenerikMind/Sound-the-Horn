@@ -1,1 +1,3 @@
 database/database.ini
+.env
+disc_token.py
