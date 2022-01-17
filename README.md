@@ -10,7 +10,8 @@ $create group <x> <y>
 <x> is the group name.  Group names SHOULD BE snake case (aka: snake_case).
 <y> is the @name(s).  Add as many as you want.  It will group everyone into the created group.
 
-Currently too lazy to create another type of command to add to group, so use the same method to add people on.  There are checks in place to prevent duplicates.
+Use the same method to add people on.  There are checks in place to prevent duplicates.  Will add more natural language
+checks for the commands. 
 
 
 $assemble <x>

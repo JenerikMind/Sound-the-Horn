@@ -1,9 +1,11 @@
 import discord
 import psycopg2
-from disc_token import return_token
+from dotenv import load_dotenv
+import os
 from database.db_service import add_game, add_user, add_group, add_user_to_group, search_group, build_ping_list, remove_from_group
 
 client = discord.Client()
+load_dotenv()
 conn = psycopg2.connect(
     host="localhost",
     database="sth_test",
@@ -115,5 +117,5 @@ async def on_message(message):
 
 
 
-client.run(return_token())
+client.run(os.environ['DISCORD_TOKEN'])
 
